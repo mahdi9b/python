@@ -1,8 +1,10 @@
 import time
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import pyglet
 from playsound import playsound
+from threading import Thread
 
 
 pyglet.font.add_file('DS-DIGI.ttf')
@@ -41,8 +43,6 @@ secondEntry.place(x=1400,y=20)
 Font_tuple =("digital-7",160)
 L1=Label(root,font=Font_tuple,text="00:00:00")
 L1.place(x=420,y=230)
-L2=Label(root,bg="red",width=0,height=5)
-L2.place(x=20,y=700)
 # pused varible
 global pused
 pused = False
@@ -53,13 +53,18 @@ def puse(its_unpused):
     if pused == False:
         pused=True
     elif pused == True:
-        global xx
-        xx=0
-        pused=False
+        pused =False
+
         
     
         
     return pused
+
+
+p1000 = ttk.Progressbar(root, length=1200)
+p1000.place(x=200,y=700)
+
+
 
 global alarm
 alarm = False
@@ -71,38 +76,41 @@ def alarm(my_alarm):
         alarm = False
     else:
         alarm = True
-    
 
+
+
+
+
+
+def submeted():
+    p1000.stop()
+    Thread(target=submit).start()
+    Thread(target=pro).start()
 
 def submit():
+    
     try:
         # the input provided by the user is
         # stored in here :temp
+        
         temp = int(hour.get())*3600 + int(minute.get())*60 + int(second.get())
+        
+        
     except:
         print("Please input the right value")
-    # ________________________________bug
-    # sl =210/temp
-    # global count,width
-    # count = 0
-    # width = 0
-    
-    # if count<210:
-    #     width+=sl
-    #     L2.config(width=width)
-    #     time.sleep(1)
-    #     count+=1
-    #     root.after(1000,)
 
-    
     while temp >-1:
-         
+        if pused == False:
+            up = True
+        if pused == True:
+            up = False
+             
         if pused:
+            p1000.stop()
             while True:
 
-                if pused == False:
-                    break
-        #     xx=999
+                if up:
+                    break        
 
         #     for x in range(x):
         #         time.sleep(xx)
@@ -140,9 +148,11 @@ def submit():
         # when temp value = 0; then a messagebox pop's up
         # with a message:"Time's up"
         if (temp == 0):
+            p1000.stop()
             if alarm:
                 playsound("Clock-chimes-sounds.mp3")
             messagebox.showinfo("Time Countdown", "Time's up ")
+            
             
                 
                 
@@ -151,16 +161,26 @@ def submit():
         # after every one sec the value of temp will be decremented
         # by one
         temp -= 1
+
+    
+
+def pro():
+    temped = int(hour.get())*3600 + int(minute.get())*60 + int(second.get())
+    sl = temped/100
+    sl *=1000
+    sl =round(sl)
+    p1000.start(sl)
+
     
 
 # button widget
 btn = Button(root, text='start again', bd='5',
-             command= submit)
+             command= submeted)
 btn.place(x = 260,y = 30)
 btn2 = Button(root,text="stop",bd='5',command=lambda:puse(pused))
 btn2.place(x=400,y=30)
 btn1 = Button(root, text='Set Time Countdown', bd='5',
-             command= submit)
+             command= submeted)
 btn1.place(x = 70,y = 30)
 btn4= Button(root,text="alarm" ,command=alarm,bd='5')
 btn4.place(x=450,y=30)
